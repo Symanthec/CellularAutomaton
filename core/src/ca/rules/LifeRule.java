@@ -54,4 +54,9 @@ public class LifeRule implements Rule<Binary> {
 
         return lut[lut_i];
     }
+
+    @Override
+    public String toString() {
+        return "Game of Life";
+    }
 }

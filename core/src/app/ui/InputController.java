@@ -1,8 +1,9 @@
 package app.ui;
 
-import app.Application;
+import app.automaton.EvolutionThread;
 import ca.Automaton;
 import ca.values.Value;
+import ca.values.ValueCollector;
 import ca.world.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -15,17 +16,25 @@ import com.badlogic.gdx.math.collision.Ray;
 @SuppressWarnings("rawtypes")
 public class InputController extends InputAdapter {
 
-    private final OrthographicCamera camera;
-    private final Automaton automaton;
+    private OrthographicCamera camera;
+    private Automaton automaton = null;
+    private GUI gui;
 
-    public InputController(OrthographicCamera cam, Automaton automaton) {
-        this.automaton = automaton;
-
+    public InputController(GUI gui, OrthographicCamera cam) {
         this.camera = cam;
+        this.gui = gui;
         camera.zoom = zoom;
         camera.update();
+        setAutomaton(gui.getAutomaton());
+    }
 
-        palette = ((Value)automaton.current().getCell(0,0)).getValues();
+    public void setAutomaton(Automaton automaton) {
+        this.automaton = automaton;
+        if (automaton != null)
+            this.palette = ValueCollector.collectValues(automaton.getRule().supportedCells());
+        else
+            this.palette = new Value[]{null};
+        this.paint_i = 0;
     }
 
     private final Vector2 camera_speed = new Vector2();
@@ -37,7 +46,7 @@ public class InputController extends InputAdapter {
     private boolean painting = false;
     private float last_x = 0, last_y = 0;
     private int paint_i = 0;
-    private final Value[] palette;
+    private Value[] palette;
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
@@ -49,6 +58,7 @@ public class InputController extends InputAdapter {
 
     @Override
     public boolean keyDown(int keycode) {
+        if (automaton != null)
         switch (keycode) {
             case Keys.W:
                 camera_speed.y += speed;
@@ -67,8 +77,9 @@ public class InputController extends InputAdapter {
                 System.out.println(palette[paint_i]);
                 return true;
             case Keys.SPACE:
-                Application.setEvolveCount(
-                        Application.getEvolveCount() != 0 ? 0: -1L
+                EvolutionThread evo = gui.getEvolver();
+                evo.setEvolveCount(
+                        evo.getEvolveCount() != 0 ? 0: -1L
                 );
                 return true;
             case Keys.LEFT:
@@ -89,15 +100,18 @@ public class InputController extends InputAdapter {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         // editing while evolving causes ConcurrentModificationException
-        if (Application.getEvolveCount() == 0) return true;
-        Ray ray = camera.getPickRay(screenX, screenY);
-        int x = (int) ray.origin.x;
-        int y = (int) ray.origin.y;
+        if (automaton != null) {
+            EvolutionThread evo = gui.getEvolver();
+            if (evo.getEvolveCount() != 0) return true;
+            Ray ray = camera.getPickRay(screenX, screenY);
+            int x = (int) ray.origin.x;
+            int y = (int) ray.origin.y;
 
-        last_x = x;
-        last_y = y;
-        painting = true;
-        drawCell(x, y);
+            last_x = x;
+            last_y = y;
+            painting = true;
+            drawCell(x, y);
+        }
         return true;
     }
 
@@ -141,9 +155,11 @@ public class InputController extends InputAdapter {
     }
 
     protected void drawCell(int x, int y) {
-        World world = automaton.current();
-        if (0 <= x && x < world.getBounds()[0] && 0 <= y && y < world.getBounds()[1]) {
-            automaton.setCell(palette[paint_i], x, y);
+        if (automaton != null) {
+            World world = automaton.current();
+            if (0 <= x && x < world.getBounds()[0] && 0 <= y && y < world.getBounds()[1]) {
+                automaton.setCell(palette[paint_i], x, y);
+            }
         }
     }
 

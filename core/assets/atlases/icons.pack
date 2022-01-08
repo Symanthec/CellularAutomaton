@@ -3,58 +3,86 @@ icons.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-clear
+create
   rotate: false
   xy: 1, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-left_arrow
+delete
   rotate: false
   xy: 51, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-pause
+eraser
   rotate: false
   xy: 101, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-play
+left_arrow
   rotate: false
   xy: 151, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-right_arrow
+ok
   rotate: false
   xy: 201, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-until_end
+pause
   rotate: false
   xy: 251, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-until_start
+play
   rotate: false
   xy: 301, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+python
+  rotate: false
+  xy: 351, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+right_arrow
+  rotate: false
+  xy: 401, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+until_end
+  rotate: false
+  xy: 451, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+until_start
+  rotate: false
+  xy: 501, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 logo
   rotate: false
-  xy: 351, 17
+  xy: 551, 17
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

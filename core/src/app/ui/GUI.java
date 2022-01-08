@@ -1,5 +1,7 @@
 package app.ui;
 
+import app.automaton.EvolutionThread;
+import app.rendering.FrameManager;
 import app.ui.panes.CreationPane;
 import app.ui.panes.EditingPane;
 import app.ui.panes.EvolvingPane;
@@ -7,7 +9,10 @@ import ca.Automaton;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -16,62 +21,70 @@ import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.Menu;
-import com.kotcrab.vis.ui.widget.MenuBar;
-import com.kotcrab.vis.ui.widget.MenuItem;
+import com.kotcrab.vis.ui.widget.VisWindow;
 
 @SuppressWarnings("rawtypes")
 public class GUI extends ScreenAdapter {
 
-    private final Automaton automaton;
-    private final InputController inputController;
-    private final OrthographicCamera camera;
+    private Automaton automaton;
+    private FrameManager frameManager;
+    private EvolutionThread evo;
+
     private final Stage stage;
+
+    private InputController inputController;
+    private OrthographicCamera camera;
+
+    private CreationPane creationPane;
+    private EvolvingPane evolvePane;
+    private EditingPane editPane;
+
+    private SpriteBatch batch;
 
     public static TextureAtlas atlas;
 
-    public GUI(Stage stage, Automaton automaton) {
+    public GUI(Stage stage) {
         this.stage = stage;
-        this.automaton = automaton;
         atlas = new TextureAtlas("atlases/icons.pack");
-
         camera = new OrthographicCamera();
-        inputController = new InputController(camera, automaton);
     }
 
     @Override
     public void show() {
-        VisUI.load();
+        batch = new SpriteBatch();
 
+        evo = new EvolutionThread(null);
+        evo.start();
+
+        VisUI.load();
+        inputController = new InputController(this, camera);
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, inputController));
 
         final Table root = new Table();
         root.setFillParent(true);
         stage.addActor(root);
 
-        // menu
-        MenuBar menuBar = new MenuBar();
-        Menu file = new Menu("File");
-        file.addItem(new MenuItem("Close"));
-        menuBar.addMenu(file);
-
-        root.add(menuBar.getTable()).growX().row();
-
         // panels
+        VisWindow window = new VisWindow("", false);
+        window.padTop(window.getPadBottom());
+        window.setMovable(false);
+        window.setResizable(false);
         HorizontalGroup paneGroup = new HorizontalGroup();
-        root.add(paneGroup).left().row();
-        root.add().expand().fill();
+        window.add(paneGroup);
 
-        CreationPane creationPane = new CreationPane();
+        creationPane = new CreationPane(this);
+        evolvePane = new EvolvingPane(this);
+        editPane = new EditingPane(this);
         paneGroup.addActor(creationPane.getPane());
-        EvolvingPane evolvePane = new EvolvingPane(automaton);
         paneGroup.addActor(evolvePane.getPane());
-        EditingPane editPane = new EditingPane(automaton);
         paneGroup.addActor(editPane.getPane());
+//        setAutomaton(automaton);
+        root.add(window).left().row();
+        root.add().expand().fill();
 
         // lose keyboard focus when clicked not on TextField
         stage.getRoot().addCaptureListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (!(event.getTarget() instanceof TextField)) stage.setKeyboardFocus(null);
                 return false;
             }
@@ -80,9 +93,42 @@ public class GUI extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        // input handling
         stage.act(delta);
-        stage.draw();
         inputController.update();
+
+        // Render clear
+        Gdx.gl.glClearColor(0.15f, 0.15f, 0.20f, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // frame rendering
+        if (frameManager != null && automaton != null) {
+            frameManager.processEvents();
+
+            // Render frame
+            Texture tex = frameManager.getFrameOrRender(automaton.at(), automaton.current());
+            batch.begin();
+            batch.setTransformMatrix(camera.view);
+            batch.setProjectionMatrix(camera.projection);
+            batch.draw(tex, 0, 0);
+            batch.end();
+        }
+
+        stage.draw();
+    }
+
+    // to work GUI needs FrameManager and Automaton
+    public void reload(Automaton automaton, FrameManager manager) {
+        this.automaton = automaton;
+        inputController.setAutomaton(automaton);
+        evolvePane.setAutomaton(automaton);
+        editPane.setAutomaton(automaton);
+        evo.setAutomaton(automaton);
+        if (frameManager != null) {
+            frameManager.reset();
+        }
+        frameManager = manager;
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
@@ -90,16 +136,23 @@ public class GUI extends ScreenAdapter {
         stage.getViewport().update(width, height, true);
         Gdx.gl.glViewport(0, 0, width, height);
         camera.setToOrtho(false, width, height);
-        camera.position.set(automaton.last().getBounds()[0] / 2f, automaton.last().getBounds()[1] / 2f, 0);
+        if (automaton != null)
+            camera.position.set(automaton.last().getBounds()[0] / 2f, automaton.last().getBounds()[1] / 2f, 0);
         camera.update();
     }
 
     @Override
     public void dispose() {
         stage.dispose();
+        atlas.dispose();
+        evo.killThread();
     }
 
-    public OrthographicCamera getCamera() {
-        return camera;
+    public Automaton getAutomaton() {
+        return automaton;
+    }
+
+    public EvolutionThread getEvolver() {
+        return evo;
     }
 }

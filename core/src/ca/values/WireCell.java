@@ -8,10 +8,10 @@ public class WireCell extends DigitalValue{
             HEAD = new WireCell((byte) 2),
             TAIL = new WireCell((byte) 3);
 
-    private static final WireCell[] vals = new WireCell[] { NONE, WIRE, HEAD, TAIL };
+    private static final WireCell[] values = new WireCell[] { NONE, WIRE, HEAD, TAIL };
 
     public WireCell() {
-        super(0L);
+        super(0);
     }
 
     private WireCell(byte val) {
@@ -20,6 +20,27 @@ public class WireCell extends DigitalValue{
 
     @Override
     public WireCell[] getValues() {
-        return vals;
+        return values;
+    }
+
+    @Override
+    public int hashCode() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        switch(value) {
+            case 0:
+                return "NONE";
+            case 1:
+                return "WIRE";
+            case 2:
+                return "HEAD";
+            case 3:
+                return "TAIL";
+            default:
+                return "unknown";
+        }
     }
 }

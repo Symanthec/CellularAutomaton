@@ -46,10 +46,6 @@ public class Automaton<V> {
         return get(current_gen);
     }
 
-    public World<V> seed() {
-        return get(0);
-    }
-
     public void setSaveAll(boolean saveAll) {
         this.save = saveAll;
     }
@@ -80,7 +76,7 @@ public class Automaton<V> {
             generations.set(current_gen, newGen);
             listeners.forEach( l -> l.generationReplaced(new GenerationReplacedEvent(current(), at())));
         } else {
-            // otherwise add generation at the end and increment current_gen
+            // otherwise, add generation at the end and increment current_gen
             generations.add(newGen);
             current_gen++;
         }
@@ -132,10 +128,6 @@ public class Automaton<V> {
         listeners.add(listener);
     }
 
-    public void removeListener(AutomatonEventListener listener) {
-        listeners.remove(listener);
-    }
-
     public void reset(int which) {
         // cut off previous
         edit();
@@ -147,5 +139,9 @@ public class Automaton<V> {
 
     public void resetCurrent() {
         reset(at());
+    }
+
+    public Rule<?> getRule() {
+        return rule;
     }
 }

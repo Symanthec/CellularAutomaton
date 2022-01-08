@@ -3,7 +3,7 @@ package ca.values;
 public class Binary implements Value{
 
     public static final Binary ON = new Binary(true), OFF = new Binary(false);
-    private static final Binary[] vals = new Binary[] {OFF, ON};
+    private static final Binary[] values = new Binary[] {OFF, ON};
 
     public final boolean value;
 
@@ -27,12 +27,17 @@ public class Binary implements Value{
     }
 
     @Override
+    public String toString() {
+        return value ? "ON": "OFF";
+    }
+
+    @Override
     public int hashCode() {
         return (value ? 1 : 0);
     }
 
     @Override
     public Binary[] getValues() {
-        return vals;
+        return values;
     }
 }

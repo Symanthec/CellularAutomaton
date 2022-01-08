@@ -1,5 +1,7 @@
 package ca;
 
+import app.automaton.RuleRegistry;
+import app.automaton.ValueRegistry;
 import ca.rules.Rule;
 import ca.values.Value;
 import org.python.core.PyList;
@@ -16,57 +18,47 @@ public class PythonLoader {
     private PythonInterpreter interpreter;
     private String filename;
 
-    private final String RULES_KEY = "rules", CELLS_KEY = "values";
-    private PyObject typesDict;
+    private final String RULES_KEY = "rules", CELLS_KEY = "cells";
+    private final PyObject classesList;
 
-    private Rule[] rules = null;
-    private Value[] cells = null;
+    private boolean rulesLoaded = false, cellsLoaded = false;
 
     public PythonLoader(String filename) {
         interpreter = new PythonInterpreter();
         interpreter.execfile(filename);
 
-        typesDict = interpreter.get("get_classes").__call__();
+        classesList = interpreter.get("get_classes").__call__();
     }
 
-    public Rule[] getRules() {
-        if (rules == null) {
-            Vector<Rule> rulesVec = new Vector<>();
-
-            PyList list = (PyList) typesDict.__getitem__(new PyString(RULES_KEY));
-            PyListIterator iterator = new PyListIterator(list);
+    public void loadRules() {
+        if (!rulesLoaded) {
+            Vector<Rule<?>> rulesVec = new Vector<>();
+            PyListIterator iterator = new PyListIterator((PyList) classesList.__getitem__(new PyString(RULES_KEY)));
             iterator.forEach( t -> {
                 try {
-                    Rule rule = ((Class<Rule>) t).getConstructor().newInstance();
+                    Rule<?> rule = ((Class<Rule>) t).getConstructor().newInstance();
+                    RuleRegistry.registerRule(rule);
                     rulesVec.add(rule);
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
             });
-            rules = new Rule[rulesVec.size()];
-            rulesVec.toArray(rules);
-        }
 
-        return rules;
+            rulesLoaded = true;
+        }
     }
 
-    public Value[] getValues() {
-        if (cells == null) {
-            Vector<Value> cellsVec = new Vector<>();
-            PyList list = (PyList) typesDict.__getitem__(new PyString(CELLS_KEY));
-            PyListIterator iterator = new PyListIterator(list);
+    public void loadValues() {
+        if (!cellsLoaded) {
+            Vector<Class<? extends Value>> cellsVec = new Vector<>();
+            PyListIterator iterator = new PyListIterator((PyList) classesList.__getitem__(new PyString(CELLS_KEY)));
             iterator.forEach( t -> {
-                try {
-                    Value rule = ((Class<Value>) t).getConstructor().newInstance();
-                    cellsVec.add(rule);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
+                ValueRegistry.registerValue((Class<? extends Value>) t);
+                cellsVec.add((Class<? extends Value>) t);
             });
-            cells = new Value[cellsVec.size()];
-            cellsVec.toArray(cells);
-        }
 
-        return cells;
+            cellsLoaded = true;
+        }
     }
+
 }

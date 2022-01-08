@@ -12,14 +12,14 @@ import java.util.Vector;
 
 public class FrameManager implements AutomatonEventListener, Disposable {
 
-    private final Renderer renderer;
+    private final Renderer<?> renderer;
     private final Vector<Texture> frames = new Vector<>();
 
-    public FrameManager(Renderer renderer) {
+    public FrameManager(Renderer<?> renderer) {
         this.renderer = renderer;
     }
 
-    public Texture getFrameOrRender(int index, World world) {
+    public Texture getFrameOrRender(int index, World<?> world) {
         ensureCapacity(index+1);
         synchronized (frames) {
             if (index >= frames.size() || frames.get(index) == null) {
@@ -33,6 +33,10 @@ public class FrameManager implements AutomatonEventListener, Disposable {
         frames.set(index, renderer.render(world));
     }
 
+    public void switchPalette(Palette palette) {
+        renderer.setPalette(palette);
+    }
+
     private void ensureCapacity(int size) {
         frames.ensureCapacity(size);
         while (frames.size() < size)
@@ -40,6 +44,8 @@ public class FrameManager implements AutomatonEventListener, Disposable {
     }
 
     Queue<GenerationEditedEvent> editedEvents = new Queue<>();
+
+    Queue<Texture> pendingDispose = new Queue<>();
 
     // processEvents is called in context owning thread to be able to use OpenGL
     public void processEvents() {
@@ -51,6 +57,10 @@ public class FrameManager implements AutomatonEventListener, Disposable {
             frames.subList(event.getIndex() + 1, frames.size()).clear();
         });
         editedEvents.clear();
+
+        // clear texture awaiting removal
+        pendingDispose.forEach(Texture::dispose);
+        pendingDispose.clear();
     }
 
     @Override
@@ -65,15 +75,23 @@ public class FrameManager implements AutomatonEventListener, Disposable {
             ensureCapacity(i+1);
         // invalidate frame
         synchronized (frames) {
+            if (frames.get(i) != null)
+                pendingDispose.addLast(frames.get(i));
             frames.set(i, null);
         }
     }
 
     @Override
     public void dispose() {
-        frames.forEach( tex -> {
-            if (tex != null) tex.dispose();
-        });
+        reset();
         renderer.dispose();
+    }
+
+    public void reset() {
+        frames.forEach( t -> {
+            if (t != null) t.dispose();
+        });
+        System.gc();
+        frames.clear();
     }
 }

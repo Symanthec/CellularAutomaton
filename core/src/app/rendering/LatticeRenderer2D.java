@@ -16,7 +16,7 @@ import static com.badlogic.gdx.graphics.GL20.*;
 
 public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
 
-    private final ValuePalette<V> palette;
+    private Palette palette;
 
     private FrameBuffer fbo;
 
@@ -27,15 +27,15 @@ public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
     );
 
     public LatticeRenderer2D(Class<V> valueClass) {
-        this(new ValuePalette<>(valueClass, Color.BLACK));
+        this(new RandomPalette<>(valueClass, Color.BLACK));
     }
 
-    public LatticeRenderer2D(ValuePalette<V> palette) {
+    public LatticeRenderer2D(RandomPalette<V> palette) {
         this.palette = palette;
 
-        float[] verts = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+        float[] vertices = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         short[] indices = new short[]{0, 1, 2, 0, 3, 2};
-        square.setVertices(verts);
+        square.setVertices(vertices);
         square.setIndices(indices);
 
         fbo = new FrameBuffer();
@@ -96,6 +96,11 @@ public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         fbo.unbind();
+    }
+
+    @Override
+    public void setPalette(Palette palette) {
+        this.palette = palette;
     }
 
 }

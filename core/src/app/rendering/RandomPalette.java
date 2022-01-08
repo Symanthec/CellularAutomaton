@@ -6,36 +6,28 @@ import com.badlogic.gdx.graphics.Color;
 
 import java.util.Random;
 
-public class ValuePalette<V extends Value> {
+public class RandomPalette<V extends Value> implements Palette {
 
     private final V[] values;
     private final Color[] colors;
-    private final Color defaultColor = Color.WHITE;
+    private final Color defaultColor;
 
-    public ValuePalette(V[] valueArray, Color[] colorMap) {
-        values = valueArray;
-        colors = colorMap;
-    }
-
-    public ValuePalette(Class<V> clazz, Color defaultColor) {
+    public RandomPalette(Class<V> clazz, Color defaultColor) {
         V[] values = (V[]) ValueCollector.collectValues(clazz);
         if (values == null) throw new NullPointerException("ValueCollector didn't gather value list from given class:" + clazz.getCanonicalName());
 
         Color[] colorArray = new Color[values.length];
         Random rand = new Random();
         for (int i = 0; i < colorArray.length; i++) {
-            colorArray[i] = new Color(rand.nextInt());
+            colorArray[i] = new Color(rand.nextInt() | 255);
         }
 
+        this.defaultColor = defaultColor;
         this.values = values;
         this.colors = colorArray;
     }
 
-    public V[] getValues() {
-        return values;
-    }
-
-    public Color getColorFor(V cellValue) {
+    public Color getColorFor(Value cellValue) {
         if (cellValue == null) throw new NullPointerException("cellValue cannot be null");
         for (int i = 0; i < values.length; i++) {
             if (values[i].equals(cellValue))

@@ -38,4 +38,8 @@ public class WireworldRule implements Rule<WireCell>{
         }
     }
 
+    @Override
+    public String toString() {
+        return "Wireworld";
+    }
 }

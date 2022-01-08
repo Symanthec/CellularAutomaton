@@ -1,13 +1,14 @@
 package ca.values;
 
-public abstract class DigitalValue implements Value{
+public abstract class DigitalValue implements Value {
 
-    public final long value;
+    public int value;
 
     public DigitalValue() {
         this(0);
     }
-    public DigitalValue(long newValue) {
+
+    public DigitalValue(int newValue) {
         value = newValue;
     }
 
