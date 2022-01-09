@@ -22,19 +22,15 @@ public class FrameManager implements AutomatonEventListener, Disposable {
     public Texture getFrameOrRender(int index, World<?> world) {
         ensureCapacity(index+1);
         synchronized (frames) {
-            if (index >= frames.size() || frames.get(index) == null) {
+            if (index >= frames.size() || getFrame(index) == null) {
                 render(index, world);
             }
-            return frames.get(index);
+            return getFrame(index);
         }
     }
 
     public void render(int index, World world) {
         frames.set(index, renderer.render(world));
-    }
-
-    public void switchPalette(Palette palette) {
-        renderer.setPalette(palette);
     }
 
     private void ensureCapacity(int size) {
@@ -48,6 +44,7 @@ public class FrameManager implements AutomatonEventListener, Disposable {
     Queue<Texture> pendingDispose = new Queue<>();
 
     // processEvents is called in context owning thread to be able to use OpenGL
+
     public void processEvents() {
         // TODO: 03.01.2022 fix editing while evolving
         editedEvents.forEach( event -> {
@@ -62,7 +59,6 @@ public class FrameManager implements AutomatonEventListener, Disposable {
         pendingDispose.forEach(Texture::dispose);
         pendingDispose.clear();
     }
-
     @Override
     public void generationEdited(GenerationEditedEvent event) {
         editedEvents.addLast(event);
@@ -93,5 +89,14 @@ public class FrameManager implements AutomatonEventListener, Disposable {
         });
         System.gc();
         frames.clear();
+    }
+
+    public void setPalette(Palette palette) {
+        reset();
+        renderer.setPalette(palette);
+    }
+
+    public Texture getFrame(int index) {
+        return frames.get(index);
     }
 }

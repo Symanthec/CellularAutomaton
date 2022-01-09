@@ -134,7 +134,7 @@ public class EvolvingPane {
         animation_group.addActor(play_until);
 
         pane = new VerticalGroup();
-        pane.padRight(50);
+        pane.pad(20);
         pane.addActor(new VisLabel("Evolution"));
         pane.addActor(gen_slider);
         pane.addActor(animation_group);

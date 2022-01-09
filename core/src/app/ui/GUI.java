@@ -2,9 +2,8 @@ package app.ui;
 
 import app.automaton.EvolutionThread;
 import app.rendering.FrameManager;
-import app.ui.panes.CreationPane;
-import app.ui.panes.EditingPane;
-import app.ui.panes.EvolvingPane;
+import app.rendering.Renderer;
+import app.ui.panes.*;
 import ca.Automaton;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -27,6 +26,8 @@ import com.kotcrab.vis.ui.widget.VisWindow;
 public class GUI extends ScreenAdapter {
 
     private Automaton automaton;
+    private Values values;
+
     private FrameManager frameManager;
     private EvolutionThread evo;
 
@@ -35,7 +36,6 @@ public class GUI extends ScreenAdapter {
     private InputController inputController;
     private OrthographicCamera camera;
 
-    private CreationPane creationPane;
     private EvolvingPane evolvePane;
     private EditingPane editPane;
 
@@ -52,7 +52,6 @@ public class GUI extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-
         evo = new EvolutionThread(null);
         evo.start();
 
@@ -72,13 +71,13 @@ public class GUI extends ScreenAdapter {
         HorizontalGroup paneGroup = new HorizontalGroup();
         window.add(paneGroup);
 
-        creationPane = new CreationPane(this);
         evolvePane = new EvolvingPane(this);
         editPane = new EditingPane(this);
-        paneGroup.addActor(creationPane.getPane());
+
+        paneGroup.addActor(new CreationPane(this).getPane());
         paneGroup.addActor(evolvePane.getPane());
         paneGroup.addActor(editPane.getPane());
-//        setAutomaton(automaton);
+        paneGroup.addActor(new ExportPane(this).getPane());
         root.add(window).left().row();
         root.add().expand().fill();
 
@@ -115,19 +114,23 @@ public class GUI extends ScreenAdapter {
         }
 
         stage.draw();
+//        stage.setDebugAll(true);
     }
 
     // to work GUI needs FrameManager and Automaton
-    public void reload(Automaton automaton, FrameManager manager) {
+    public void reload(Automaton automaton, Renderer<?> renderer, Values values) {
         this.automaton = automaton;
-        inputController.setAutomaton(automaton);
-        evolvePane.setAutomaton(automaton);
-        editPane.setAutomaton(automaton);
-        evo.setAutomaton(automaton);
-        if (frameManager != null) {
-            frameManager.reset();
+        if (renderer != null && automaton != null) {
+            if (frameManager != null)
+                frameManager.reset();
+            frameManager = new FrameManager(renderer);
+            automaton.addListener(frameManager);
         }
-        frameManager = manager;
+        inputController.setAutomaton(automaton, values);
+        evolvePane.setAutomaton(automaton);
+        editPane.setAutomaton(automaton, renderer, values);
+        evo.setAutomaton(automaton);
+        this.values = values;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
@@ -154,5 +157,13 @@ public class GUI extends ScreenAdapter {
 
     public EvolutionThread getEvolver() {
         return evo;
+    }
+
+    public FrameManager getFrameManager() {
+        return frameManager;
+    }
+
+    public Values getValues() {
+        return values;
     }
 }

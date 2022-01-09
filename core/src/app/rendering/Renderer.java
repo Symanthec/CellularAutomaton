@@ -12,4 +12,6 @@ public interface Renderer<V extends Value> extends Disposable {
     void redrawCell(Texture texture, World<V> current, int[] pos);
 
     void setPalette(Palette palette);
+
+    Palette getPalette();
 }

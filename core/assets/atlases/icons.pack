@@ -3,86 +3,107 @@ icons.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-create
+camera
   rotate: false
   xy: 1, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-delete
+create
   rotate: false
   xy: 51, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-eraser
+delete
   rotate: false
   xy: 101, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-left_arrow
+eraser
   rotate: false
   xy: 151, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-ok
+left_arrow
   rotate: false
   xy: 201, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-pause
+ok
   rotate: false
   xy: 251, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-play
+palette
   rotate: false
   xy: 301, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-python
+pause
   rotate: false
   xy: 351, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-right_arrow
+play
   rotate: false
   xy: 401, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-until_end
+python
   rotate: false
   xy: 451, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-until_start
+right_arrow
   rotate: false
   xy: 501, 1
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+until_end
+  rotate: false
+  xy: 551, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+until_start
+  rotate: false
+  xy: 601, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+video
+  rotate: false
+  xy: 651, 1
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 logo
   rotate: false
-  xy: 551, 17
+  xy: 701, 17
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

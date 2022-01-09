@@ -2,7 +2,6 @@ package app.ui.panes;
 
 import app.automaton.RuleRegistry;
 import app.automaton.ValueRegistry;
-import app.rendering.FrameManager;
 import app.rendering.LatticeRenderer2D;
 import app.rendering.Renderer;
 import app.ui.GUI;
@@ -39,8 +38,6 @@ import java.util.stream.Stream;
 
 public class CreateAutomatonWindow extends Dialog {
 
-    private Value[] palette;
-
     private final VisSelectBox<Class<? extends Value>> valuesSelect = new VisSelectBox<>() {
         @Override
         protected GlyphLayout drawItem(Batch batch, BitmapFont font, Class<? extends Value> item, float x, float y, float width) {
@@ -63,11 +60,8 @@ public class CreateAutomatonWindow extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Class<? extends Value> clazz = valuesSelect.getSelected();
-                palette = ValueCollector.collectValues(clazz);
-
                 Stream<Rule<?>> stream = Arrays.stream(RuleRegistry.getAvailableRules()).filter(rule -> rule.supportedCells().equals(clazz));
                 rulesSelect.setItems(stream.toArray(Rule[]::new));
-
                 pack();
             }
         });
@@ -144,11 +138,9 @@ public class CreateAutomatonWindow extends Dialog {
                 automaton.setRoot(seed);
 
                 Renderer<?> renderer = new LatticeRenderer2D<>(defaultCell.getClass());
-                FrameManager frameManager = new FrameManager(renderer);
-                automaton.addListener(frameManager);
                 automaton.setSaveAll(checkBox.isChecked());
 
-                gui.reload(automaton, frameManager);
+                gui.reload(automaton, renderer, new Values(values));
                 hide();
             }
         });

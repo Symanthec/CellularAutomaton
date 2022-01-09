@@ -1,9 +1,8 @@
 package app.ui;
 
 import app.automaton.EvolutionThread;
+import app.ui.panes.Values;
 import ca.Automaton;
-import ca.values.Value;
-import ca.values.ValueCollector;
 import ca.world.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -16,25 +15,22 @@ import com.badlogic.gdx.math.collision.Ray;
 @SuppressWarnings("rawtypes")
 public class InputController extends InputAdapter {
 
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
     private Automaton automaton = null;
-    private GUI gui;
+    private final GUI gui;
+
+    private Values values;
 
     public InputController(GUI gui, OrthographicCamera cam) {
         this.camera = cam;
         this.gui = gui;
         camera.zoom = zoom;
         camera.update();
-        setAutomaton(gui.getAutomaton());
     }
 
-    public void setAutomaton(Automaton automaton) {
+    public void setAutomaton(Automaton automaton, Values values) {
         this.automaton = automaton;
-        if (automaton != null)
-            this.palette = ValueCollector.collectValues(automaton.getRule().supportedCells());
-        else
-            this.palette = new Value[]{null};
-        this.paint_i = 0;
+        this.values = values;
     }
 
     private final Vector2 camera_speed = new Vector2();
@@ -45,8 +41,6 @@ public class InputController extends InputAdapter {
 
     private boolean painting = false;
     private float last_x = 0, last_y = 0;
-    private int paint_i = 0;
-    private Value[] palette;
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
@@ -73,8 +67,10 @@ public class InputController extends InputAdapter {
                 camera_speed.x += speed;
                 return true;
             case Keys.E:
-                paint_i = (paint_i+1) % palette.length;
-                System.out.println(palette[paint_i]);
+                if (values != null) {
+                    values.next();
+                    System.out.println(values.get());
+                }
                 return true;
             case Keys.SPACE:
                 EvolutionThread evo = gui.getEvolver();
@@ -155,10 +151,10 @@ public class InputController extends InputAdapter {
     }
 
     protected void drawCell(int x, int y) {
-        if (automaton != null) {
+        if (automaton != null && values != null) {
             World world = automaton.current();
             if (0 <= x && x < world.getBounds()[0] && 0 <= y && y < world.getBounds()[1]) {
-                automaton.setCell(palette[paint_i], x, y);
+                automaton.setCell(values.get(), x, y);
             }
         }
     }

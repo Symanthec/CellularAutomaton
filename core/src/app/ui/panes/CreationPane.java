@@ -3,13 +3,16 @@ package app.ui.panes;
 import app.ui.GUI;
 import app.ui.GuiUtils;
 import ca.PythonLoader;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
-import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter;
 import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.file.FileChooser;
+import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 
 public class CreationPane {
 
@@ -17,7 +20,6 @@ public class CreationPane {
 
     public CreationPane(GUI gui) {
         group = new VerticalGroup();
-        group.padRight(50);
         group.addActor(new VisLabel("Automaton"));
 
         HorizontalGroup buttonGroup = new HorizontalGroup();
@@ -46,7 +48,7 @@ public class CreationPane {
                         new String[]{"Yes", "Cancel"},
                         new Boolean[]{true, false},
                         result -> {
-                            if (gui.getAutomaton() != null && result) gui.reload(null, null);
+                            if (gui.getAutomaton() != null && result) gui.reload(null, null, null);
                         }
                 );
                 confirmDialog.show(event.getStage());
@@ -54,32 +56,31 @@ public class CreationPane {
         });
 
         ImageButton jython = new ImageButton(GuiUtils.getSprite(GUI.atlas, "python"));
+        jython.addListener(GuiUtils.getTooltip("Load Python file"));
         jython.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Dialogs.showInputDialog(
-                    event.getStage(),
-                    "Enter path",
-                    "Enter python file path:",
-                    true,
-                    new InputDialogAdapter() {
-                        @Override
-                        public void finished(String input) {
-                            PythonLoader loader = new PythonLoader(input);
-                            loader.loadRules();
-                            loader.loadValues();
-                        }
-                    });
+                FileChooser fc = new FileChooser("Select Python file", FileChooser.Mode.OPEN);
+                fc.setMultiSelectionEnabled(false);
+                fc.setListener(new FileChooserAdapter() {
+                    @Override
+                    public void selected(Array<FileHandle> files) {
+                        PythonLoader loader = new PythonLoader(files.first());
+                        loader.loadValues();
+                        loader.loadRules();
+                    }
+                });
+                event.getStage().addActor(fc);
             }
         });
 
         addDelGroup.addActor(createButton);
         addDelGroup.addActor(deleteButton);
         buttonGroup.addActor(addDelGroup);
-
         buttonGroup.addActor(jython);
 
         group.addActor(buttonGroup);
+        group.pad(20);
     }
 
     public Actor getPane() {

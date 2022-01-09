@@ -4,6 +4,8 @@ import app.automaton.RuleRegistry;
 import app.automaton.ValueRegistry;
 import ca.rules.Rule;
 import ca.values.Value;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import org.python.core.PyList;
 import org.python.core.PyListIterator;
 import org.python.core.PyObject;
@@ -23,9 +25,9 @@ public class PythonLoader {
 
     private boolean rulesLoaded = false, cellsLoaded = false;
 
-    public PythonLoader(String filename) {
+    public PythonLoader(FileHandle filename) {
         interpreter = new PythonInterpreter();
-        interpreter.execfile(filename);
+        interpreter.execfile(filename.path());
 
         classesList = interpreter.get("get_classes").__call__();
     }
@@ -40,7 +42,7 @@ public class PythonLoader {
                     RuleRegistry.registerRule(rule);
                     rulesVec.add(rule);
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    e.printStackTrace();
+                    Gdx.app.error("PYTHON LOAD", e.getMessage(), e);
                 }
             });
 
@@ -53,8 +55,12 @@ public class PythonLoader {
             Vector<Class<? extends Value>> cellsVec = new Vector<>();
             PyListIterator iterator = new PyListIterator((PyList) classesList.__getitem__(new PyString(CELLS_KEY)));
             iterator.forEach( t -> {
-                ValueRegistry.registerValue((Class<? extends Value>) t);
-                cellsVec.add((Class<? extends Value>) t);
+                try{
+                    ValueRegistry.registerValue((Class<? extends Value>) t);
+                    cellsVec.add((Class<? extends Value>) t);
+                } catch (Exception e) {
+                    Gdx.app.error("PYTHON LOAD", e.getMessage(), e);
+                }
             });
 
             cellsLoaded = true;

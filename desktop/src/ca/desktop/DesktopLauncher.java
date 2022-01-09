@@ -14,7 +14,7 @@ public class DesktopLauncher {
 		config.height = 720;
 		config.foregroundFPS = 120;
 		config.backgroundFPS = 30;
-		config.title = "Cellular Automata";
+		config.title = "Cellular Automaton";
 		config.addIcon("./core/assets/logo.png", Files.FileType.Local);
 		// prevents exiting with code -1
 		config.forceExit = false;
