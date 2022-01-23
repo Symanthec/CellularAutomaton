@@ -19,10 +19,10 @@ import com.kotcrab.vis.ui.widget.*;
 public class EvolvingPane {
 
     private final VerticalGroup pane;
-    private Automaton<?> automaton;
+    private Automaton automaton;
 
     public EvolvingPane(GUI gui) {
-        TextureAtlas atlas = GUI.atlas;
+        TextureAtlas atlas = gui.getAtlas();
 
         VisLabel gen_label = new VisLabel("Generation: 0");
         ////////////////////////
@@ -145,7 +145,7 @@ public class EvolvingPane {
         return pane;
     }
 
-    public void setAutomaton(Automaton<?> automaton) {
+    public void setAutomaton(Automaton automaton) {
         this.automaton = automaton;
         pane.setTouchable( automaton != null ? Touchable.enabled: Touchable.disabled);
     }

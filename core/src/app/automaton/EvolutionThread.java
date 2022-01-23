@@ -9,9 +9,9 @@ public class EvolutionThread extends Thread {
 
     private final AtomicLong evolveCount;
     private final AtomicBoolean running = new AtomicBoolean(true);
-    private Automaton<?> automaton;
+    private Automaton automaton;
 
-    public void setAutomaton(Automaton<?> automaton) {
+    public void setAutomaton(Automaton automaton) {
         this.automaton = automaton;
     }
 
@@ -23,11 +23,11 @@ public class EvolutionThread extends Thread {
         evolveCount.set(count);
     }
 
-    public EvolutionThread(Automaton<?> automaton) {
+    public EvolutionThread(Automaton automaton) {
         this(automaton, 0L);
     }
 
-    public EvolutionThread(Automaton<?> automaton, long evolveCount) {
+    public EvolutionThread(Automaton automaton, long evolveCount) {
         this.automaton = automaton;
         this.evolveCount = new AtomicLong(evolveCount);
     }

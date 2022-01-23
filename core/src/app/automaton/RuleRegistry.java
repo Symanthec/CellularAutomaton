@@ -9,7 +9,7 @@ import java.util.Vector;
 
 public class RuleRegistry {
 
-    private static final Vector<Rule<?>> values = new Vector<>();
+    private static final Vector<Rule> values = new Vector<>();
 
     static {
         values.add(new BrianBrain());
@@ -17,12 +17,12 @@ public class RuleRegistry {
         values.add(new WireworldRule());
     }
 
-    public static void registerRule(Rule<?> rule) {
+    public static void registerRule(Rule rule) {
         if (!values.contains(rule))
             values.add(rule);
     }
 
-    public static Rule<?>[] getAvailableRules() {
+    public static Rule[] getAvailableRules() {
         return values.toArray(new Rule[0]);
     }
 
