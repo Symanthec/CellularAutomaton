@@ -17,6 +17,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Collections;
 
 public class SaveAnimationWindow extends VisDialog {
 
@@ -24,7 +25,6 @@ public class SaveAnimationWindow extends VisDialog {
     private final int digits = (int) Math.ceil(Math.log10(Integer.MAX_VALUE));
 
     private FileHandle handle;
-    private GUI gui;
 
     public SaveAnimationWindow(GUI gui) {
         this(gui, "Save as .mp4 file");
@@ -32,7 +32,6 @@ public class SaveAnimationWindow extends VisDialog {
 
     public SaveAnimationWindow(GUI gui, String title) {
         super(title);
-        this.gui = gui;
         addCloseButton();
 
         VerticalGroup group = new VerticalGroup();
@@ -53,6 +52,7 @@ public class SaveAnimationWindow extends VisDialog {
             public void clicked(InputEvent event, float x, float y) {
                 FileChooser fc = new FileChooser(FileChooser.Mode.SAVE);
                 fc.setMultiSelectionEnabled(false);
+                fc.setDirectory(".");
                 fc.setListener(new FileChooserAdapter() {
                     @Override
                     public void selected(Array<FileHandle> files) {
@@ -107,7 +107,7 @@ public class SaveAnimationWindow extends VisDialog {
                     }
 
                     TextureExporter exporter = new TextureExporter();
-                    NumberFormat format = new DecimalFormat("0".repeat(digits));
+                    NumberFormat format = new DecimalFormat(String.join("", Collections.nCopies(digits, "0")));
                     FileHandle cacheFolder = new FileHandle(handle.parent().path() + "/cache");
                     cacheFolder.mkdirs();
                     for (int i = 0; i <= to - from; i++) {
@@ -119,7 +119,6 @@ public class SaveAnimationWindow extends VisDialog {
                     new Thread(() -> {
                         Runtime rt = Runtime.getRuntime();
                         FileHandle ffmpeg = new FileHandle("ffmpeg/ffmpeg.exe");
-
                         try {
                             String[] command = new String[] {
                                     ffmpeg.path(),
@@ -129,12 +128,7 @@ public class SaveAnimationWindow extends VisDialog {
                                     cacheFolder.path() + "/%" + digits + "d.png",
                                     handle.path()
                             };
-                            Process proc = rt.exec(String.join(" ", command));
-//                            Gdx.app.log("CMD", String.join(" ", command));
-
-                            byte[] out = proc.getInputStream().readAllBytes();
-                            System.out.write(out);
-                            System.out.flush();
+                            rt.exec(String.join(" ", command));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

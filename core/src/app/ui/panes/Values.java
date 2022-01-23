@@ -1,13 +1,11 @@
 package app.ui.panes;
 
-import ca.values.Value;
-
 public class Values {
 
-    private final Value[] values;
+    private final short[] values;
     private int at;
 
-    public Values(Value[] values) {
+    public Values(short[] values) {
         this.values = values;
     }
 
@@ -19,11 +17,11 @@ public class Values {
         at = (at + 1) % values.length;
     }
 
-    public Value get() {
+    public short get() {
         return values[at];
     }
 
-    public Value[] all() {
+    public short[] all() {
         return values;
     }
 }

@@ -2,10 +2,10 @@ package ca.rules;
 
 import ca.world.World;
 
-public interface Rule<C> {
+public interface Rule {
 
-    Class<C> supportedCells();
+    Class<?> supportedCells();
 
-    C produceValue(World<C> world, int... relativePosition);
+    short produceValue(World world, int... relativePosition);
 
 }

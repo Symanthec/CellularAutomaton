@@ -12,8 +12,8 @@ public class GenerationReplacedEvent {
         return index;
     }
 
-    private World world;
-    private int index;
+    private final World world;
+    private final int index;
 
     public GenerationReplacedEvent(World world, int index) {
         this.world = world;

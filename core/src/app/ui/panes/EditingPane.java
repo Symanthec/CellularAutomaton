@@ -6,7 +6,6 @@ import app.rendering.Renderer;
 import app.ui.GUI;
 import app.ui.GuiUtils;
 import ca.Automaton;
-import ca.values.Value;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -33,7 +32,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 public class EditingPane {
 
     private final VerticalGroup group;
-    private Automaton<?> automaton;
+    private Automaton automaton;
     private final VisTable paletteTable;
     private Values values;
 
@@ -44,13 +43,14 @@ public class EditingPane {
         paletteTable = new VisTable();
 
         HorizontalGroup buttons = new HorizontalGroup();
-        ImageButton palette = new ImageButton(GuiUtils.getSprite(GUI.atlas, "palette"));
+        ImageButton palette = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "palette"));
         palette.addListener(GuiUtils.getTooltip("Choose color palette"));
         palette.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 FileChooser fc = new FileChooser("Select JSON color scheme", FileChooser.Mode.OPEN);
                 fc.setMultiSelectionEnabled(false);
+                fc.setDirectory(".");
                 fc.setListener(new FileChooserAdapter() {
                     @Override
                     public void selected(Array<FileHandle> files) {
@@ -69,7 +69,7 @@ public class EditingPane {
             }
         });
 
-        ImageButton clearButton = new ImageButton(GuiUtils.getSprite(GUI.atlas, "eraser"));
+        ImageButton clearButton = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "eraser"));
         clearButton.addListener(GuiUtils.getTooltip("Clear generation"));
         clearButton.addListener(new ClickListener(0) {
             @Override
@@ -105,7 +105,7 @@ public class EditingPane {
         paletteTable.clearChildren();
         if (palette != null) {
             int i = 0;
-            for (Value value: values.all()) {
+            for (short value: values.all()) {
                 Button button = createButton(palette.getColorFor(value));
                 final int k = i++;
                 button.addListener(new ClickListener() {
@@ -115,20 +115,16 @@ public class EditingPane {
                     }
                 });
                 button.pad(10);
-                button.addListener(GuiUtils.getTooltip(value.toString()));
+                button.addListener(GuiUtils.getTooltip(String.valueOf(value)));
                 paletteTable.add(button);
             }
         }
     }
 
-    public void setAutomaton(Automaton<?> automaton, Renderer<?> renderer, Values values) {
-        if (automaton != null) {
-            this.automaton = automaton;
-            this.values = values;
-            group.setTouchable(Touchable.enabled);
-        } else {
-            group.setTouchable(Touchable.disabled);
-        }
+    public void setAutomaton(Automaton automaton, Renderer renderer, Values values) {
+        this.automaton = automaton;
+        this.values = values;
+        group.setTouchable(automaton == null ? Touchable.disabled: Touchable.enabled);
         refreshColorButtons(renderer != null ? renderer.getPalette(): null);
     }
 

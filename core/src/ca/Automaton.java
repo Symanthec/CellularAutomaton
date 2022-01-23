@@ -9,21 +9,21 @@ import ca.world.World;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Automaton<V> {
+public class Automaton {
 
     protected boolean save = false;
 
-    private final ArrayList<World<V>> generations = new ArrayList<>();
-    private final Rule<V> rule;
+    private final ArrayList<World> generations = new ArrayList<>();
+    private final Rule rule;
 
     protected int current_gen = 0;
     private boolean evolving;
 
-    public Automaton(Rule<V> newRule) {
+    public Automaton(Rule newRule) {
         rule = newRule;
     }
 
-    public void setRoot(World<V> seed) {
+    public void setRoot(World seed) {
         if (generations.size() == 0)
             generations.add(seed);
         else
@@ -34,15 +34,15 @@ public class Automaton<V> {
         return generations.size();
     }
 
-    public World<V> get(int index) {
+    public World get(int index) {
         return generations.get(index);
     }
 
-    public World<V> last() {
+    public World last() {
         return get(generations.size() - 1);
     }
 
-    public World<V> current() {
+    public World current() {
         return get(current_gen);
     }
 
@@ -59,7 +59,7 @@ public class Automaton<V> {
 
         evolving = true;
 
-        World<V> oldGen, newGen;
+        World oldGen, newGen;
 
         oldGen = last();
         newGen = oldGen.copy();
@@ -100,7 +100,7 @@ public class Automaton<V> {
         // we delete everything past current gen
 
         int offset = current_gen + 1;
-        List<World<V>> sub = generations.subList(current_gen + 1, size());
+        List<World> sub = generations.subList(current_gen + 1, size());
         for (int i = 0; i < sub.size(); i++)
         {
             GenerationReplacedEvent event = new GenerationReplacedEvent(sub.get(i), offset + i);
@@ -109,14 +109,13 @@ public class Automaton<V> {
             );
         }
         if (!evolving && at() != size() - 1 /* not at last */) sub.clear();
-
     }
 
-    public V getCell(int... pos) {
+    public short getCell(int... pos) {
         return current().getCell(pos);
     }
 
-    public void setCell(V cell, int... pos) {
+    public void setCell(short cell, int... pos) {
         edit();
         current().setCell(cell, pos);
         listeners.forEach( l -> l.generationEdited(new GenerationEditedEvent(current(), at(), pos)));
@@ -139,9 +138,5 @@ public class Automaton<V> {
 
     public void resetCurrent() {
         reset(at());
-    }
-
-    public Rule<?> getRule() {
-        return rule;
     }
 }

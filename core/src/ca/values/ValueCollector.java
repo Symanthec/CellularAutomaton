@@ -5,11 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 
 public class ValueCollector {
 
-    public static Value[] collectValues(Class<? extends Value> clazz) {
+    public static short[] collectValues(Class<? extends Cell> clazz) {
         try {
-            Constructor<? extends Value> constructor = clazz.getDeclaredConstructor();
-            Value valueInstance = constructor.newInstance();
-            return valueInstance.getValues();
+            Constructor<? extends Cell> constructor = clazz.getDeclaredConstructor();
+            Cell cellInstance = constructor.newInstance();
+            return cellInstance.getValues();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException | IllegalAccessException e) {

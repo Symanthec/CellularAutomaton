@@ -4,15 +4,15 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class World3D<C> implements World<C>{
+public class World3D implements World, Iterable<int[]>{
 
     public final int WIDTH = 0, HEIGHT = 1, DEPTH = 2;
 
-    protected C[][][] world;
-    private final C defaultValue;
+    protected short[][][] world;
+    private final short defaultValue;
     public final int[] bounds;
 
-    public World3D(C fillValue, int... bounds) {
+    public World3D(short fillValue, int... bounds) {
         this.bounds = new int[] {
             bounds[0],
             bounds[1],
@@ -21,11 +21,11 @@ public class World3D<C> implements World<C>{
 
         this.defaultValue = fillValue;
 
-        world = (C[][][]) Array.newInstance(fillValue.getClass(), this.bounds);
+        world = (short[][][]) Array.newInstance(Short.TYPE, bounds);
     }
 
     @Override
-    public C getCell(int... coordinates) {
+    public short getCell(int... coordinates) {
         try{
             return world
                     [coordinates[0]] // x position
@@ -37,13 +37,13 @@ public class World3D<C> implements World<C>{
     }
 
     @Override
-    public void setCell(C newValue, int... coordinates) {
+    public void setCell(short newValue, int... coordinates) {
         world[coordinates[0]][coordinates[1]][coordinates[2]] = newValue;
     }
 
     @Override
     public void reset() {
-        world = (C[][][]) Array.newInstance(defaultValue.getClass(), bounds[WIDTH], bounds[HEIGHT], bounds[DEPTH]);
+        world = (short[][][]) Array.newInstance(Short.TYPE, bounds);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class World3D<C> implements World<C>{
     }
 
     @Override
-    public World<C> copy() {
+    public World copy() {
         return null;
     }
 

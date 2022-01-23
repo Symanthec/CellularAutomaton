@@ -11,7 +11,7 @@ import java.util.zip.Deflater;
 
 public class TextureExporter implements Disposable {
 
-    private FrameBuffer fbo;
+    private final FrameBuffer fbo;
 
     public TextureExporter() {
         fbo = new FrameBuffer();

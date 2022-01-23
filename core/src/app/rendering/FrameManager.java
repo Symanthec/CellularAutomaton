@@ -12,14 +12,14 @@ import java.util.Vector;
 
 public class FrameManager implements AutomatonEventListener, Disposable {
 
-    private final Renderer<?> renderer;
+    private final Renderer renderer;
     private final Vector<Texture> frames = new Vector<>();
 
-    public FrameManager(Renderer<?> renderer) {
+    public FrameManager(Renderer renderer) {
         this.renderer = renderer;
     }
 
-    public Texture getFrameOrRender(int index, World<?> world) {
+    public Texture getFrameOrRender(int index, World world) {
         ensureCapacity(index+1);
         synchronized (frames) {
             if (index >= frames.size() || getFrame(index) == null) {
@@ -46,7 +46,6 @@ public class FrameManager implements AutomatonEventListener, Disposable {
     // processEvents is called in context owning thread to be able to use OpenGL
 
     public void processEvents() {
-        // TODO: 03.01.2022 fix editing while evolving
         editedEvents.forEach( event -> {
             Texture tex = getFrameOrRender(event.getIndex(), event.getWorld());
             renderer.redrawCell(tex, event.getWorld(), event.getPosition());

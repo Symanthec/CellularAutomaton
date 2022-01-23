@@ -1,39 +1,33 @@
 package app.rendering;
 
-import ca.values.Value;
+import ca.values.Cell;
 import ca.values.ValueCollector;
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.HashMap;
 import java.util.Random;
 
-public class RandomPalette<V extends Value> implements Palette {
+public class RandomPalette implements Palette {
 
-    private final V[] values;
-    private final Color[] colors;
     private final Color defaultColor;
 
-    public RandomPalette(Class<V> clazz, Color defaultColor) {
-        V[] values = (V[]) ValueCollector.collectValues(clazz);
+    HashMap<Short, Color> map;
+
+    public RandomPalette(Class<? extends Cell> clazz, Color defaultColor) {
+        short[] values = ValueCollector.collectValues(clazz);
         if (values == null) throw new NullPointerException("ValueCollector didn't gather value list from given class:" + clazz.getCanonicalName());
 
-        Color[] colorArray = new Color[values.length];
+        map = new HashMap<>(values.length);
         Random rand = new Random();
-        for (int i = 0; i < colorArray.length; i++) {
-            colorArray[i] = new Color(rand.nextInt() | 255);
+        for (short val: values) {
+            map.put(val, new Color(rand.nextInt() | 255));
         }
 
         this.defaultColor = defaultColor;
-        this.values = values;
-        this.colors = colorArray;
     }
 
-    public Color getColorFor(Value cellValue) {
-        if (cellValue == null) throw new NullPointerException("cellValue cannot be null");
-        for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(cellValue))
-                return colors[i];
-        }
-        return defaultColor;
+    public Color getColorFor(short cellValue) {
+        return map.getOrDefault(cellValue, defaultColor);
     }
 
 }

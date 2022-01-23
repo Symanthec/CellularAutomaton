@@ -8,7 +8,7 @@ import app.ui.GUI;
 import app.ui.GuiUtils;
 import ca.Automaton;
 import ca.rules.Rule;
-import ca.values.Value;
+import ca.values.Cell;
 import ca.values.ValueCollector;
 import ca.world.World;
 import ca.world.World1D;
@@ -28,24 +28,26 @@ import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.util.IntDigitsOnlyFilter;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
-import com.kotcrab.vis.ui.widget.VisCheckBox;
-import com.kotcrab.vis.ui.widget.VisSelectBox;
-import com.kotcrab.vis.ui.widget.VisTextButton;
-import com.kotcrab.vis.ui.widget.VisTextField;
+import com.kotcrab.vis.ui.widget.*;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class CreateAutomatonWindow extends Dialog {
 
-    private final VisSelectBox<Class<? extends Value>> valuesSelect = new VisSelectBox<>() {
+    private final VisSelectBox<Class<? extends Cell>> valuesSelect = new VisSelectBox<Class<? extends Cell>>() {
         @Override
-        protected GlyphLayout drawItem(Batch batch, BitmapFont font, Class<? extends Value> item, float x, float y, float width) {
+        protected GlyphLayout drawItem(Batch batch, BitmapFont font, Class<? extends Cell> item, float x, float y, float width) {
             String string = item.getSimpleName();
             return font.draw(batch, string, x, y, 0, string.length(), width, getAlign(), false, "...");
         }
     };
-    private final VisSelectBox<Rule<?>> rulesSelect = new VisSelectBox<>();
+    private final VisSelectBox<Rule> rulesSelect = new VisSelectBox<>();
+
+    private final String[] names = new String[]{
+            "Width:",
+            "Height:"
+    };
 
     public CreateAutomatonWindow(GUI gui, String title) {
         super(title, VisUI.getSkin());
@@ -59,29 +61,27 @@ public class CreateAutomatonWindow extends Dialog {
         valuesSelect.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Class<? extends Value> clazz = valuesSelect.getSelected();
-                Stream<Rule<?>> stream = Arrays.stream(RuleRegistry.getAvailableRules()).filter(rule -> rule.supportedCells().equals(clazz));
+                Class<? extends Cell> clazz = valuesSelect.getSelected();
+                Stream<? extends Rule> stream = Arrays.stream(RuleRegistry.getAvailableRules()).filter(rule -> rule.supportedCells().equals(clazz));
                 rulesSelect.setItems(stream.toArray(Rule[]::new));
                 pack();
             }
         });
 
         VerticalGroup dimsContainer = new VerticalGroup();
-        dimsContainer.padTop(20);
-        dimsContainer.padBottom(20);
-        VerticalGroup dims = new VerticalGroup();
+        dimsContainer.pad(20, 10, 15, 10);
+        VisTable dims = new VisTable();
         VisTextButton addDim = new VisTextButton("New dimension");
         addDim.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (dims.getChildren().size < 2) {
-                    VisTextField field = new VisTextField();
-                    field.setTextFieldFilter(new IntDigitsOnlyFilter(false));
-                    dims.addActor(field);
-                    pack();
-                } else {
-                    Dialogs.showOKDialog(event.getStage(), "Dimensions count exceeded", "No more than 3 dimensions");
-                }
+                VisTextField field = new VisTextField();
+                field.setTextFieldFilter(new IntDigitsOnlyFilter(false));
+                dims.add(names[dims.getRows()]).padBottom(10);
+                dims.add(field).padLeft(10).row();
+                pack();
+                if (dims.getRows() >= 2)
+                    dimsContainer.removeActor(addDim);
             }
         });
         dimsContainer.addActor(addDim);
@@ -92,52 +92,52 @@ public class CreateAutomatonWindow extends Dialog {
         checkBox.padBottom(15);
 
         HorizontalGroup yesNoGroup = new HorizontalGroup();
-        ImageButton yes = new ImageButton(GuiUtils.getSprite(GUI.atlas, "ok"));
+        ImageButton yes = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "ok"));
         yes.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Value[] values = ValueCollector.collectValues(valuesSelect.getSelected());
+                short[] values = ValueCollector.collectValues(valuesSelect.getSelected());
                 if (values == null) {
                     Dialogs.showErrorDialog(event.getStage(), "Select cell type");
                     return;
                 }
-                Value defaultCell = values[0];
+                short defaultCell = values[0];
 
-                Rule<?> rule = rulesSelect.getSelected();
+                Rule rule = rulesSelect.getSelected();
                 if (rule == null) {
                     Dialogs.showErrorDialog(event.getStage(), "Select rule type");
                     return;
                 }
 
-                int dimensions = dims.getChildren().size;
+                int dimensions = dims.getChildren().size / 2;
                 int[] dimSizes = new int[dimensions];
                 for (int i = 0; i < dimensions; i++) {
-                    VisTextField field = (VisTextField) dims.getChildren().get(i);
+                    VisTextField field = (VisTextField) dims.getChildren().get(1 + 2 * i);
                     try {
                         dimSizes[i] = Integer.parseInt(field.getText());
                         if (dimSizes[i] <= 0) return;
                     } catch (NumberFormatException e) {
+                        Dialogs.showErrorDialog(event.getStage(), "Invalid number: " + field.getText());
                         return;
                     }
                 }
 
-                //noinspection rawtypes
                 World seed;
                 switch (dimensions) {
                     case 1:
-                        seed = new World1D<>(defaultCell, dimSizes[0]);
+                        seed = new World1D(defaultCell, dimSizes[0]);
                         break;
                     case 2:
-                        seed = new World2D<>(defaultCell, dimSizes[0], dimSizes[1]);
+                        seed = new World2D(defaultCell, dimSizes[0], dimSizes[1]);
                         break;
                     default:
                         return;
                 }
 
-                Automaton<?> automaton = new Automaton<>(rulesSelect.getSelected());
+                Automaton automaton = new Automaton(rulesSelect.getSelected());
                 automaton.setRoot(seed);
 
-                Renderer<?> renderer = new LatticeRenderer2D<>(defaultCell.getClass());
+                Renderer renderer = new LatticeRenderer2D(valuesSelect.getSelected());
                 automaton.setSaveAll(checkBox.isChecked());
 
                 gui.reload(automaton, renderer, new Values(values));
@@ -145,7 +145,7 @@ public class CreateAutomatonWindow extends Dialog {
             }
         });
 
-        ImageButton no  = new ImageButton(GuiUtils.getSprite(GUI.atlas, "delete"));
+        ImageButton no = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "delete"));
         no.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -153,8 +153,8 @@ public class CreateAutomatonWindow extends Dialog {
             }
         });
 
-        yes.pad(0,10,0,10);
-        no.pad(0,10,0,10);
+        yes.pad(0, 10, 0, 10);
+        no.pad(0, 10, 0, 10);
 
         yesNoGroup.addActor(yes);
         yesNoGroup.addActor(no);

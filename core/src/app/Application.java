@@ -4,7 +4,6 @@ import app.ui.GUI;
 import com.badlogic.gdx.ApplicationLogger;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
@@ -21,8 +20,6 @@ public class Application extends Game {
         Stage stage = new Stage(new ScreenViewport());
         gui = new GUI(stage);
         setScreen(gui);
-
-        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Crosshair);
 
         if (Gdx.app.getType() == Desktop) {
             Gdx.app.setApplicationLogger(new ApplicationLogger() {

@@ -1,24 +1,20 @@
 package app.rendering;
 
-import ca.values.Value;
+import ca.values.Cell;
 import ca.world.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.utils.BufferUtils;
-import com.badlogic.gdx.utils.Disposable;
 
-import java.nio.IntBuffer;
+import static com.badlogic.gdx.graphics.GL20.GL_FLOAT;
+import static com.badlogic.gdx.graphics.GL20.GL_TRIANGLES;
 
-import static com.badlogic.gdx.graphics.GL20.*;
-
-public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
+public class LatticeRenderer2D implements Renderer {
 
     private Palette palette;
-
-    private FrameBuffer fbo;
+    private final FrameBuffer fbo;
 
     private final OrthographicCamera cam = new OrthographicCamera();
     private final ShaderProgram program = new ShaderProgram(new FileHandle("shaders/lattice_vertex.glsl"), new FileHandle("shaders/lattice_fragment.glsl"));
@@ -26,11 +22,11 @@ public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
             new VertexAttribute(0, 2, "aPos", GL_FLOAT)
     );
 
-    public LatticeRenderer2D(Class<V> valueClass) {
-        this(new RandomPalette<>(valueClass, Color.BLACK));
+    public LatticeRenderer2D(Class<? extends Cell> valueClass) {
+        this(new RandomPalette(valueClass, Color.BLACK));
     }
 
-    public LatticeRenderer2D(RandomPalette<V> palette) {
+    public LatticeRenderer2D(Palette palette) {
         this.palette = palette;
 
         float[] vertices = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
@@ -42,7 +38,7 @@ public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
     }
 
     @Override
-    public Texture render(World<V> world) {
+    public Texture render(World world) {
         int width = world.getBounds()[0], height = world.getBounds()[1];
 
         fbo.bind();
@@ -78,7 +74,7 @@ public class LatticeRenderer2D<V extends Value> implements Renderer<V> {
         fbo.dispose();
     }
 
-    public void redrawCell(Texture output, World<V> world, int... cellPosition) {
+    public void redrawCell(Texture output, World world, int... cellPosition) {
         fbo.bind();
         fbo.useTexture(output);
 

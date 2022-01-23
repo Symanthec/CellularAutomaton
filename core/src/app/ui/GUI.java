@@ -22,7 +22,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisWindow;
 
-@SuppressWarnings("rawtypes")
 public class GUI extends ScreenAdapter {
 
     private Automaton automaton;
@@ -34,14 +33,18 @@ public class GUI extends ScreenAdapter {
     private final Stage stage;
 
     private InputController inputController;
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
 
     private EvolvingPane evolvePane;
     private EditingPane editPane;
 
     private SpriteBatch batch;
 
-    public static TextureAtlas atlas;
+    public TextureAtlas getAtlas() {
+        return atlas;
+    }
+
+    private final TextureAtlas atlas;
 
     public GUI(Stage stage) {
         this.stage = stage;
@@ -114,22 +117,22 @@ public class GUI extends ScreenAdapter {
         }
 
         stage.draw();
-//        stage.setDebugAll(true);
     }
 
     // to work GUI needs FrameManager and Automaton
-    public void reload(Automaton automaton, Renderer<?> renderer, Values values) {
+    public void reload(Automaton automaton, Renderer renderer, Values values) {
         this.automaton = automaton;
-        if (renderer != null && automaton != null) {
-            if (frameManager != null)
-                frameManager.reset();
-            frameManager = new FrameManager(renderer);
-            automaton.addListener(frameManager);
-        }
         inputController.setAutomaton(automaton, values);
         evolvePane.setAutomaton(automaton);
         editPane.setAutomaton(automaton, renderer, values);
         evo.setAutomaton(automaton);
+        if (frameManager != null)
+            frameManager.reset();
+        if (renderer != null && automaton != null) {
+            frameManager = new FrameManager(renderer);
+            automaton.addListener(frameManager);
+        }
+
         this.values = values;
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
@@ -139,8 +142,12 @@ public class GUI extends ScreenAdapter {
         stage.getViewport().update(width, height, true);
         Gdx.gl.glViewport(0, 0, width, height);
         camera.setToOrtho(false, width, height);
-        if (automaton != null)
-            camera.position.set(automaton.last().getBounds()[0] / 2f, automaton.last().getBounds()[1] / 2f, 0);
+        if (automaton != null) {
+            camera.position.set(
+                    automaton.last().getBounds()[0] / 2f,
+                    automaton.last().getBounds()[1] / 2f,
+                    0);
+        }
         camera.update();
     }
 

@@ -1,6 +1,5 @@
 package app.rendering;
 
-import ca.values.Value;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -12,16 +11,16 @@ import java.util.Random;
 
 public class FilePalette implements Palette {
 
-    HashMap<Value, Color> colorMap = new HashMap<>();
+    HashMap<Short, Color> colorMap = new HashMap<>();
 
-    public FilePalette(Value[] values, FileHandle file) {
+    public FilePalette(short[] values, FileHandle file) {
         JsonReader reader = new JsonReader();
         JsonValue json = reader.parse(file);
 
         Random random = new Random();
 
-        for (Value val : values) {
-            JsonValue jcol = json.get(String.valueOf(val.hashCode()));
+        for (short val : values) {
+            JsonValue jcol = json.get(String.valueOf(val));
 
             Color color;
             try {
@@ -41,7 +40,7 @@ public class FilePalette implements Palette {
     }
 
     @Override
-    public Color getColorFor(Value val) {
+    public Color getColorFor(short val) {
         return colorMap.getOrDefault(val, Color.BLACK);
     }
 

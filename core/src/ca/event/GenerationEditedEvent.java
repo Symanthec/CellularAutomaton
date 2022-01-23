@@ -4,9 +4,9 @@ import ca.world.World;
 
 public class GenerationEditedEvent {
 
-    private World world;
-    private int index;
-    private int[] pos;
+    private final World world;
+    private final int index;
+    private final int[] pos;
 
     public World getWorld() {
         return world;

@@ -1,46 +1,18 @@
 package ca.values;
 
-public class WireCell extends DigitalValue{
+public class WireCell implements Cell {
 
-    public static final WireCell
-            NONE = new WireCell((byte) 0),
-            WIRE = new WireCell((byte) 1),
-            HEAD = new WireCell((byte) 2),
-            TAIL = new WireCell((byte) 3);
+    public static final short
+            NONE = 0,
+            WIRE = 1,
+            HEAD = 2,
+            TAIL = 3;
 
-    private static final WireCell[] values = new WireCell[] { NONE, WIRE, HEAD, TAIL };
-
-    public WireCell() {
-        super(0);
-    }
-
-    private WireCell(byte val) {
-        super(val);
-    }
+    private static final short[] values = new short[] { NONE, WIRE, HEAD, TAIL };
 
     @Override
-    public WireCell[] getValues() {
+    public short[] getValues() {
         return values;
     }
 
-    @Override
-    public int hashCode() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        switch(value) {
-            case 0:
-                return "NONE";
-            case 1:
-                return "WIRE";
-            case 2:
-                return "HEAD";
-            case 3:
-                return "TAIL";
-            default:
-                return "unknown";
-        }
-    }
 }

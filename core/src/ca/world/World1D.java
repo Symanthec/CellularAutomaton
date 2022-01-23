@@ -1,26 +1,28 @@
 package ca.world;
 
-import java.lang.reflect.Array;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
-public class World1D<C> implements World<C> {
+public class World1D implements World {
 
-    protected C[] array;
+    protected short[] array;
     public final int[] size;
-    public final C defaultValue;
+    public final short defaultValue;
 
-    public World1D(C fillValue, int size) {
-        this.size = new int[]{size};
+    public World1D(short fillValue, int size) {
+        this.size = new int[]{size, 1, 1};
         this.defaultValue = fillValue;
 
-        array = (C[]) Array.newInstance(fillValue.getClass(), size);
+        array = new short[size];
         Arrays.fill(array, fillValue);
     }
 
     @Override
-    public C getCell(int[] coordinates) {
+    public short getCell(int[] coordinates) {
         try{
             return array[coordinates[0]];
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -29,12 +31,8 @@ public class World1D<C> implements World<C> {
     }
 
     @Override
-    public void setCell(C newValue, int... coordinates) {
+    public void setCell(short newValue, int... coordinates) {
         array[coordinates[0]] = newValue;
-    }
-
-    public void setCell(C newValue, int x) {
-        array[x] = newValue;
     }
 
     @Override
@@ -50,20 +48,21 @@ public class World1D<C> implements World<C> {
     @Override
     public Iterator<int[]> iterator() {
         return IntStream.range(0, size[0]).mapToObj(
-                (x) -> new int[]{x}
+                (x) -> new int[]{x, 0, 0}
         ).iterator();
     }
 
     @Override
-    public World<C> copy() {
-        return new World1D<>(defaultValue, size[0]);
+    public World copy() {
+        return new World1D(defaultValue, size[0]);
     }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (C val: array)
-            result.append(val.toString());
+        NumberFormat format = new DecimalFormat(String.join("", Collections.nCopies(5, "0")));
+        for (short val: array)
+            result.append(' ').append(format.format(val)).append(' ');
         return result.toString();
     }
 }

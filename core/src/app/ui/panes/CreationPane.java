@@ -25,7 +25,7 @@ public class CreationPane {
         HorizontalGroup buttonGroup = new HorizontalGroup();
         VerticalGroup addDelGroup = new VerticalGroup();
 
-        ImageButton createButton = new ImageButton(GuiUtils.getSprite(GUI.atlas, "create"));
+        ImageButton createButton = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "create"));
         Tooltip<Label> createTooltip = GuiUtils.getTooltip("Create new automaton");
         createButton.addListener(createTooltip);
         createButton.addListener(new ClickListener() {
@@ -36,7 +36,7 @@ public class CreationPane {
             }
         });
 
-        ImageButton deleteButton = new ImageButton(GuiUtils.getSprite(GUI.atlas, "delete"));
+        ImageButton deleteButton = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "delete"));
         Tooltip<Label> deleteTooltip = GuiUtils.getTooltip("Delete automaton");
         deleteButton.addListener(deleteTooltip);
         deleteButton.addListener(new ClickListener() {
@@ -55,13 +55,14 @@ public class CreationPane {
             }
         });
 
-        ImageButton jython = new ImageButton(GuiUtils.getSprite(GUI.atlas, "python"));
+        ImageButton jython = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "python"));
         jython.addListener(GuiUtils.getTooltip("Load Python file"));
         jython.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 FileChooser fc = new FileChooser("Select Python file", FileChooser.Mode.OPEN);
                 fc.setMultiSelectionEnabled(false);
+                fc.setDirectory(".");
                 fc.setListener(new FileChooserAdapter() {
                     @Override
                     public void selected(Array<FileHandle> files) {

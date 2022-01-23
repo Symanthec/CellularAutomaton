@@ -7,15 +7,15 @@ import ca.world.World;
 import static ca.values.Binary.OFF;
 import static ca.values.Binary.ON;
 
-public class LifeRule implements Rule<Binary> {
+public class LifeRule implements Rule {
 
-    private final Moore<Binary> collector = new Moore<>(Binary.class);
+    private final Moore collector = new Moore();
 
-    private static final Binary[] lut;
+    private static final short[] lut;
     private static final int aliveShift = 8;
 
     static {
-        lut = new Binary[2 * 9]; // sum of alive cells in [0;8]
+        lut = new short[2 * 9]; // sum of alive cells in [0;8]
         for (int i = 0; i < lut.length; i++) {
             // sum of neighbor cells
             int sum = i % 9;
@@ -41,17 +41,10 @@ public class LifeRule implements Rule<Binary> {
     }
 
     @Override
-    public Binary produceValue(World<Binary> world, int... relativePosition) {
-//        Binary[][] neighbors = collector.collect(world, relativePosition);
+    public short produceValue(World world, int... relativePosition) {
+        collector.collect(world, relativePosition);
         int x = relativePosition[0], y = relativePosition[1];
-        int lut_i = world.getCell(x, y).value ? aliveShift : 0;
-
-        for (int i = -radius; i <= radius; i++) {
-            for (int j = -radius; j <= radius; j++) {
-                lut_i += world.getCell(x + i, y + j).value ? 1 : 0;
-            }
-        }
-
+        int lut_i = collector.count(ON) + (world.getCell(x, y) == ON ? aliveShift : 0);
         return lut[lut_i];
     }
 

@@ -1,33 +1,32 @@
 package ca.world;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class World2D<C> implements World<C>, Iterable<int[]> {
+public class World2D implements World, Iterable<int[]> {
 
     public static final int WIDTH = 0, HEIGHT = 1;
 
-    protected C[][] lattice;
-    C defaultValue;
+    protected short[][] lattice;
+    short defaultValue;
     protected final int[] bounds;
     public final int width, height;
 
-    public World2D(C default_value, int start_width, int start_height) {
-        this.bounds = new int[] {start_width, start_height};
+    public World2D(short default_value, int start_width, int start_height) {
+        this.bounds = new int[] {start_width, start_height, 1};
         this.width = start_width;
         this.height = start_height;
         this.defaultValue = default_value;
 
-        this.lattice = (C[][]) Array.newInstance(defaultValue.getClass(), start_width, start_height);
+        this.lattice = new short[start_width][start_height];
 
-        for (C[] row: lattice)
+        for (short[] row: lattice)
             Arrays.fill(row, defaultValue);
     }
 
     @Override
-    public C getCell(int... coordinates) {
+    public short getCell(int... coordinates) {
         int x = coordinates[0], y = coordinates[1];
         if (0 <= x && 0 <= y && x < width && y < height)
             return lattice[x][y];
@@ -35,13 +34,13 @@ public class World2D<C> implements World<C>, Iterable<int[]> {
     }
 
     @Override
-    public void setCell(C new_value, int... coordinates) {
+    public void setCell(short new_value, int... coordinates) {
         lattice[coordinates[0]][coordinates[1]] = new_value;
     }
 
     @Override
     public void reset() {
-        for (C[] row: lattice)
+        for (short[] row: lattice)
             Arrays.fill(row, defaultValue);
     }
 
@@ -55,19 +54,16 @@ public class World2D<C> implements World<C>, Iterable<int[]> {
         StringBuilder result = new StringBuilder();
         for (int column = 0; column < bounds[HEIGHT]; column++) {
             for (int row = 0; row < bounds[WIDTH]; row++) {
-                C cell = getCell(row, column);
-                if (cell != null)
-                    result.append(cell);
-                else
-                    result.append('n');
+                short cell = getCell(row, column);
+                result.append(cell);
             }
             result.append('\n');
         }
         return result.toString();
     }
 
-    public World2D<C> copy() {
-        return new World2D<>(defaultValue, bounds[WIDTH], bounds[HEIGHT]);
+    public World2D copy() {
+        return new World2D(defaultValue, bounds[WIDTH], bounds[HEIGHT]);
     }
 
     @Override
@@ -75,7 +71,7 @@ public class World2D<C> implements World<C>, Iterable<int[]> {
         ArrayList<int[]> coordinates = new ArrayList<>();
         for (int column = 0; column < bounds[HEIGHT]; column++) {
             for (int row = 0; row < bounds[WIDTH]; row++) {
-                coordinates.add(new int[]{row, column});
+                coordinates.add(new int[]{row, column, 0});
             }
         }
 

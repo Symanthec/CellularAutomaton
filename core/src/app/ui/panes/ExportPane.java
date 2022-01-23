@@ -24,16 +24,17 @@ public class ExportPane {
     public ExportPane(GUI gui) {
         group = new VerticalGroup();
 
-        ImageButton exportPic = new ImageButton(GuiUtils.getSprite(GUI.atlas, "camera"));
+        ImageButton exportPic = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "camera"));
         exportPic.addListener(GuiUtils.getTooltip("Export as .png image"));
         exportPic.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Automaton<?> auto = gui.getAutomaton();
+                Automaton auto = gui.getAutomaton();
                 if (auto == null) return;
                 int index = auto.at(); // remember current frame
                 FileChooser fc = new FileChooser(FileChooser.Mode.SAVE);
                 fc.setMultiSelectionEnabled(false);
+                fc.setDirectory(".");
                 fc.setListener(new FileChooserAdapter() {
                     @Override
                     public void selected(Array<FileHandle> files) {
@@ -45,7 +46,7 @@ public class ExportPane {
             }
         });
 
-        ImageButton exportVid = new ImageButton(GuiUtils.getSprite(GUI.atlas, "video"));
+        ImageButton exportVid = new ImageButton(GuiUtils.getSprite(gui.getAtlas(), "video"));
         exportVid.addListener(GuiUtils.getTooltip("Export as .mp4 animation"));
         exportVid.addListener(new ClickListener() {
             @Override

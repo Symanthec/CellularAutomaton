@@ -2,31 +2,37 @@ package ca.collecting;
 
 import ca.world.World;
 
-import java.lang.reflect.Array;
-
-public class RadialCollector1D<C> {
+public class RadialCollector1D implements Collector{
 
     public final int radius;
-    private final Class<C> clazz;
+    private short[] neighborhood;
 
-    public RadialCollector1D(Class<C> cellClass) {
-        this(cellClass, 1);
+    public RadialCollector1D() {
+        this(1);
     }
-    public RadialCollector1D(Class<C> cellClass, int newRadius) {
-        clazz = cellClass;
+
+    public RadialCollector1D(int newRadius) {
         radius = Math.abs(newRadius);
     }
 
-    public C[] collect(World<C> world, int[] current_position) {
-        C[] array = (C[]) Array.newInstance(clazz, 2 * radius + 1);
+    public void collect(World world, int[] current_position) {
+        neighborhood = new short[2 * radius + 1];
 
         int x = current_position[0];
 
         for (int rel_x = -radius; rel_x <= radius; rel_x++) {
-            array[rel_x] = world.getCell(x + rel_x);
+            neighborhood[radius + rel_x] = world.getCell(x + rel_x);
         }
+    }
 
-        return array;
+    @Override
+    public int count(short value) {
+        int c = 0;
+        for (short s: neighborhood) {
+            if (s == value)
+                c++;
+        }
+        return c;
     }
 
 }

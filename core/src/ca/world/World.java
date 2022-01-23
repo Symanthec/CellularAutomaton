@@ -2,13 +2,13 @@ package ca.world;
 
 import java.util.Iterator;
 
-public interface World<C> extends Iterable<int[]> {
+public interface World extends Iterable<int[]> {
 
     /*
      * Getters and setters for cell array
      */
-    C getCell(int... coordinates);
-    void setCell(C newValue, int... coordinates) throws IndexOutOfBoundsException;
+    short getCell(int... coordinates);
+    void setCell(short newValue, int... coordinates) throws IndexOutOfBoundsException;
 
     void reset();
 
@@ -19,6 +19,6 @@ public interface World<C> extends Iterable<int[]> {
      * This is needed to let Neighborhood collect neighbors.
      */
     Iterator<int[]> iterator();
-    World<C> copy();
+    World copy();
 
 }
