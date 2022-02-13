@@ -1,0 +1,16 @@
+{
+  "platform": "windows64",
+  "jdk": "C:/Users/Илья/.jdks/temurin-1.8.0_312",
+  "executable": "automaton",
+  "classpath": [
+  "out/CellularAutomaton.jar"
+  ],
+  "mainclass": "ca.desktop.DesktopLauncher",
+  "resources": [
+    "core/assets/atlases",
+    "shaders",
+    "ffmpeg"
+  ],
+  "minimizejre": "hard",
+  "output": "packr"
+}
